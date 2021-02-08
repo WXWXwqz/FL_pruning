@@ -1,0 +1,4 @@
+fl_ctl_syn_vgg_iid_cifar101DESKTOP-VE9RBHEcuda2020-12-23.txt 
+Federated learning 
+
+SGD SGD {'lr': 0.01, 'weight_decay': 0.001} 1 
