@@ -32,7 +32,8 @@ import fl_func
 def loss_fn(pred, target):
     return F.cross_entropy(input=pred, target=target)
 # torch.jit.RecursiveScriptModule
-
+def prune():
+    fl_func.prune_network()
 if __name__ == "__main__":
 
     
@@ -45,9 +46,11 @@ if __name__ == "__main__":
     log.log(LOG_FILE)
     log.log('Federated learning')
     workers_num=1
-    fl_func.prune_network()
     hook = sy.TorchHook(torch)  # hook torch as always :)
-    
+    p = Process(target = prune)
+    p.daemon = True
+    p.start()
+    # fl_func.prune_network() 
     mock_data = torch.zeros(100,3,32,32)
     mock_data.to(device)
     ave_once_num=1

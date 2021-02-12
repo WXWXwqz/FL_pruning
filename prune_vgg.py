@@ -310,6 +310,8 @@ def get_new_norm(norm, channel_index):
     new_norm.bias.data = index_remove(norm.bias.data, 0, channel_index)
 
     if norm.track_running_stats:
+        print(index_remove(norm.running_mean.data, 0, channel_index))
+        print(new_norm.running_mean.data)
         new_norm.running_mean.data = index_remove(norm.running_mean.data, 0, channel_index)
         new_norm.running_var.data = index_remove(norm.running_var.data, 0, channel_index)
 
