@@ -611,6 +611,7 @@ def prune_network(network=None):
     args.u = 1
     args.flops_ratio = 0.3
     args.batch_size = 256
+    args.gpu_no=-1
     
     model = VGG(args.network, args.data_set)
     old_model=copy.deepcopy(model)
