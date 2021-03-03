@@ -604,14 +604,14 @@ def prune_network(network=None):
     args.data_set = 'CIFAR10'
     args.data_path = './'
     args.save_path = './'
-    args.load_path = './trained_models/check_point_CIFAR100.pth'
+    args.load_path = './trained_models/pruned_model1.pth'
     args.update_param_epoch = 1
     args.finetune_epoch = 1
     args.ratio = 0.35
     args.u = 1
     args.flops_ratio = 0.3
     args.batch_size = 256
-    args.gpu_no=-1
+    args.gpu_no=0
     
     model = VGG(args.network, args.data_set)
     old_model=copy.deepcopy(model)
