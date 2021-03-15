@@ -28,12 +28,12 @@ class FinalIndex:
             index += 1
         return mask
 
-    def init_mask(self, args):
+    def init_mask(self, prune_layers):
         conv_count = 0
         mask_all = []
         for i in range(len(self.network.features)):
             if isinstance(self.network.features[i], torch.nn.Conv2d):
-                if 'conv%d' % conv_count in args.prune_layers:
+                if 'conv%d' % conv_count in prune_layers:
                     mask_length_1 = self.get_size(self.network.features[i].bias.data)
                     mask_length = mask_length_1[0]
                     # print(type(mask_length))
@@ -76,8 +76,17 @@ class FinalIndex:
         return mask
 
     def get_final_pruned_index(self, mask_final, mask_all):
+        feature = []
+        for i in range(len(self.network.features)):
+            if isinstance(self.network.features[i], torch.nn.Conv2d):
+                feature.append(i)
+
         pruned_index = []
         for i in range(self.layer_idx):
             pruned_index_oneconv = self.get_pruned_index(mask_final[i], mask_all[i])
             pruned_index.append(pruned_index_oneconv)
-        return pruned_index
+
+        final_pruned_index = {}
+        for i, val in enumerate(feature):
+            final_pruned_index['feature.%d' % val] = pruned_index[i]
+        return final_pruned_index

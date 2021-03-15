@@ -29,6 +29,7 @@ class sk_prune_sever():
         data = self.clientSockt.recv(1024).decode('utf-8')
         print('sever get :%s'%(data))
         model,index = fl_func.prune_network()
+        print()
         f = open('./'+data+'.txt','w')
         f.write(str(index))
         f.close()
