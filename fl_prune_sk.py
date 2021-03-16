@@ -41,9 +41,8 @@ if __name__ == "__main__":
     log=log.Log(LOG_FILE,True)
     log.log(LOG_FILE)
     log.log('Federated learning')
-    prune_client=sk_prune_client(ip='192.168.123.166')  
-    prune_client.prune(1)
-    workers_num=1
+
+    workers_num=2
     hook = sy.TorchHook(torch)  # hook torch as always :)
     mock_data = torch.zeros(100,3,32,32)
     mock_data.to(device)
@@ -59,7 +58,9 @@ if __name__ == "__main__":
     kwargs_websocket = {"host": "192.168.123.166", "hook": hook, "verbose": False}  
     model=VGG().to(device)
     model_ave=VGG().to(device)
-    
+    torch.save(model_ave.state_dict(), "model_tst_fl.pkl") 
+    # prune_client=sk_prune_client(ip='192.168.123.166')  
+    # prune_client.prune(1)
     # model
     worker_client=[0]*workers_num
     train_config=[0]*workers_num
@@ -127,7 +128,7 @@ if __name__ == "__main__":
                 # model=VGG().to(device)
                 model=VGG().to(device)
                 model=fl_func.model_cp(model,getmodel)   
-                model,channel_index= fl_func.prune_network(model)
+                # model,channel_index= fl_func.prune_network(model)
 
 
                 model_list[traincnt]=model.to('cpu')
