@@ -604,7 +604,7 @@ def prune_network(network=None):
     args.data_set = 'CIFAR10'
     args.data_path = './'
     args.save_path = './'
-    args.load_path = './trained_models/pruned_model1.pth'
+    # args.load_path = "model_tst_fl.pkl"
     args.update_param_epoch = 1
     args.finetune_epoch = 1
     args.ratio = 0.35
@@ -614,11 +614,12 @@ def prune_network(network=None):
     args.gpu_no=0
     
     model = VGG(args.network, args.data_set)
+    model.load_state_dict(torch.load("model_tst_fl.pkl"))
     old_model=copy.deepcopy(model)
     network, prune_index = prune_vgg.prune_network(args, network=model)
     
     final_index = FinalIndex(old_model, prune_index, layer_idx)
-    mask_all = final_index.init_mask(args)
+    mask_all = final_index.init_mask(args.prune_layers)
     mask_final = final_index.get_all_conv(mask_all)
     final_pruned_index = final_index.get_final_pruned_index(mask_final, mask_all)
 
