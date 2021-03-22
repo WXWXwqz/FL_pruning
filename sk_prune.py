@@ -10,7 +10,7 @@ class sk_prune_client():
     def prune(self,msg):
         self.clientSocket = socket.socket()  
         self.clientSocket.connect((self.ip,self.ports))
-        self.clientSocket.send(('prune'+str(msg)).encode())
+        self.clientSocket.send((str(msg)).encode())
         print('send to prune')
         recvData = self.clientSocket.recv(1024).decode('utf-8')
         print('revcdata:%s'%(recvData))
@@ -28,12 +28,13 @@ class sk_prune_sever():
         self.clientSockt,self.addr =  self.server_socket.accept() 
         data = self.clientSockt.recv(1024).decode('utf-8')
         print('sever get :%s'%(data))
-        model,index = fl_func.prune_network()
-        print()
-        f = open('./'+data+'.txt','w')
-        f.write(str(index))
+        model,index = fl_func.prune_network(model_str=data)
+        # print()
+        f = open('./'+'prune'+data+'.txt','w')
+        for key in index:
+            f.write(key+':'+str(index[key])+'\r\n')
         f.close()
-        torch.save(model.state_dict(), './'+data+'.pkl')
+        torch.save(model, './'+'prune'+data+'.pkl')
         
         
         self.clientSockt.send(b'prune ok')

@@ -42,11 +42,12 @@ if __name__ == "__main__":
     log.log(LOG_FILE)
     log.log('Federated learning')
 
-    workers_num=2
+    workers_num=3
+    train_num=10
     hook = sy.TorchHook(torch)  # hook torch as always :)
     mock_data = torch.zeros(100,3,32,32)
     mock_data.to(device)
-    ave_once_num=1
+    ave_once_num=3
     log.log()
     optimizer = "SGD"
     batch_size = 100
@@ -56,15 +57,16 @@ if __name__ == "__main__":
     
     log.log(optimizer,optimizer,optimizer_args,epochs)
     kwargs_websocket = {"host": "192.168.123.166", "hook": hook, "verbose": False}  
-    model=VGG().to(device)
-    model_ave=VGG().to(device)
-    torch.save(model_ave.state_dict(), "model_tst_fl.pkl") 
-    # prune_client=sk_prune_client(ip='192.168.123.166')  
-    # prune_client.prune(1)
+    # model=VGG().to(device)
+    # model_ave=VGG().to(device)
+    
+    prune_client=sk_prune_client(ip='192.168.123.166')  
+    
     # model
+    channel_info=[0]*workers_num
     worker_client=[0]*workers_num
     train_config=[0]*workers_num
-    for x in range(10):
+    for x in range(train_num):
         log.log("train num,",x)    
         model=VGG().to(device)
         model_ave=VGG().to('cpu')
@@ -74,6 +76,7 @@ if __name__ == "__main__":
         # train_config=[0]*workers_num
         worker_loss=[0]*workers_num
         ports=[0]*workers_num
+        model_pruned=[0]*workers_num
         for i in range(workers_num):
             model_list[i]=model.copy()
             ports[i]=7000+i
@@ -111,8 +114,8 @@ if __name__ == "__main__":
                 # while loss>0.5:
                 #     loss=worker_client[i].fit(dataset_key="mnist_non_iid")   
                 #     print(loss)
-            loss_min= sum(worker_loss)/workers_num
-            log.log("loss_min {:.4f}".format(loss_min))
+            loss_ave= sum(worker_loss)/workers_num
+            log.log("loss_ave {:.4f}".format(loss_ave))
             for traincnt in range(workers_num):
                 # if worker_loss[traincnt]>=loss_min*1.5 and worker_loss[traincnt]>0.05:
                 #     log.log("again",traincnt)
@@ -128,10 +131,20 @@ if __name__ == "__main__":
                 # model=VGG().to(device)
                 model=VGG().to(device)
                 model=fl_func.model_cp(model,getmodel)   
+                torch.save(model, './'+str(traincnt)+'.pkl')
+                prune_client.prune(traincnt)
+                # model_pruned[traincnt]=VGG().to(device)
+                # model_pruned[traincnt].load_state_dict()
+                model_pruned[traincnt]=torch.load('prune'+str(traincnt)+'.pkl')
+     
+                channel_info[traincnt]=(fl_func.get_channel_info('prune'+str(traincnt)+'.txt'))
+                model=VGG().to('cpu')
+                model_list[traincnt]=fl_func.model_zeros_fill(model,model_pruned[traincnt],channel_info[traincnt])
+                fl_func.model_para_purn_compare_print(model_list[traincnt],model_pruned[traincnt])
                 # model,channel_index= fl_func.prune_network(model)
 
 
-                model_list[traincnt]=model.to('cpu')
+                # model_list[traincnt]=model_pruned[traincnt].to('cpu')
 
             model_ave=fl_func.model_list_avg(model_ave,model_list)
             model_ave=model_ave.to(device)

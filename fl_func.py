@@ -123,8 +123,8 @@ def model_para_purn_compare_print(model1,model2):
     for name in dict_dst_params1:       
         print(name)
         if name in dict_dst_params2:
-            print("origin",dict_dst_params1[name],type(dict_dst_params1[name]))
-            print("pruned",dict_dst_params2[name],type(dict_dst_params2[name]))
+            print("origin",dict_dst_params1[name].shape,type(dict_dst_params1[name]))
+            print("pruned",dict_dst_params2[name].shape,type(dict_dst_params2[name]))
             print("*-*--**--*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*")
         else:
             print("origin",dict_dst_params1[name].shape)
@@ -595,7 +595,7 @@ def model_cp(dst_model,src_model):
     return dst_model
 
 
-def prune_network(network=None):
+def prune_network(model_str,network=None):
     args = get_parameter()    
     layer_idx = 13
     args.prune_layers = ['conv0', 'conv1', 'conv2', 'conv3', 'conv4', 'conv5', 'conv6', 'conv7', 'conv8', 'conv9', 'conv10', 'conv11',
@@ -611,10 +611,10 @@ def prune_network(network=None):
     args.u = 1
     args.flops_ratio = 0.3
     args.batch_size = 256
-    args.gpu_no=0
+    args.gpu_no=-1
     
-    model = VGG(args.network, args.data_set)
-    model.load_state_dict(torch.load("model_tst_fl.pkl"))
+    # model = VGG(args.network, args.data_set)
+    model=(torch.load(model_str+'.pkl'))
     old_model=copy.deepcopy(model)
     network, prune_index = prune_vgg.prune_network(args, network=model)
     

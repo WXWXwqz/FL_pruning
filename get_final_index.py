@@ -88,5 +88,5 @@ class FinalIndex:
 
         final_pruned_index = {}
         for i, val in enumerate(feature):
-            final_pruned_index['feature.%d' % val] = pruned_index[i]
+            final_pruned_index['features.%d' % val] = pruned_index[i]
         return final_pruned_index
